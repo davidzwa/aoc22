@@ -1,4 +1,4 @@
-with open('aoc1_input') as f:
+with open('questions/aoc1_input') as f:
     lines = f.readlines()
 
 elf_values = []

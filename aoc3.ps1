@@ -1,7 +1,7 @@
 # lowercase is first compartment
 # uppercase is second compartment
 
-$filename = 'aoc3_input';
+$filename = 'questions/aoc3_input';
 
 function Get-PrioValue {
     param (

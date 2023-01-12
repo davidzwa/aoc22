@@ -1,6 +1,6 @@
 const { readFileSync } = require('fs');
 
-const file = readFileSync('aoc2_input', { encoding: 'utf8' });
+const file = readFileSync('questions/aoc2_input', { encoding: 'utf8' });
 const lines = file
   .split(/\n/) // Split the files by newline 
   // Alternatively /\r?\n/ allows carriage return \r to happen 0 or 1 time
