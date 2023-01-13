@@ -6,3 +6,5 @@ Backup languages:
 - delphi
 - objectiveC
 - fortran
+- clojure
+- TeX

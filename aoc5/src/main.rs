@@ -21,7 +21,7 @@ fn main() {
         let mut lines_vec: Vec<String> = Vec::new();
         let lines = &mut lines.into_iter();
 
-        let mut iterator = &mut lines.take(8);
+        let iterator = &mut lines.take(8);
         for line in iterator.into_iter() {
             lines_vec.push(line.unwrap());
         }
@@ -62,11 +62,11 @@ fn main() {
         // println!("");
         // Parse instructions
         for line in instr_vec {
-            let mut instr = line
+            let instr = line
                 .replace("move ", "")
                 .replace("from ", "")
                 .replace("to ", "");
-            let mut split: Vec<&str> = instr.split(' ').collect();
+            let split: Vec<&str> = instr.split(' ').collect();
             let imove = split[0].parse::<usize>().unwrap();
             let ifrom = split[1].parse::<usize>().unwrap() - 1;
             let ito = split[2].parse::<usize>().unwrap() - 1;
