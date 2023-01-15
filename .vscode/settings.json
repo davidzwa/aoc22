@@ -1,6 +1,14 @@
 {
     "git.ignoreLimitWarning": true,
     "files.associations": {
-        "string.h": "c"
+        "string.h": "c",
+        "vector": "cpp",
+        "*.tcc": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "rope": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "iostream": "cpp"
     },
 }

@@ -3,14 +3,14 @@
         {
             "name": "Win32",
             "includePath": [
-                "${default}",
+                "${default}"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/Users/david/Documents/Projects/aoc22/x86_64-12.2.0-release-win32-seh-ucrt-rt_v10-rev2/mingw64/bin/gcc.exe",
+            "compilerPath": "C:/Users/david/Documents/Projects/aoc22/x86_64-12.2.0-release-win32-seh-ucrt-rt_v10-rev2/mingw64/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "windows-msvc-x64"
