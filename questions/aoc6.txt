@@ -32,3 +32,7 @@ Here are a few more examples:
 How many characters need to be processed before the first start-of-packet marker is detected?
 
 To begin, get your puzzle input.
+
+--- Part Two ---
+
+Detect 14 characters now
