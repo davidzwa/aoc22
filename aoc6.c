@@ -13,7 +13,7 @@ int getMarker(char buf[], int maxSize, int length) {
     for (i = 0; i < maxSize - length; i++)
     {
         foundUniqueChars+=1;
-        for (size_t j = 1; j < length; j++)
+        for (size_t j = 1; j <= length - foundUniqueChars; j++)
         {
             if (buf[i] == buf[i + j]) {
                 foundUniqueChars = 0;
@@ -24,10 +24,11 @@ int getMarker(char buf[], int maxSize, int length) {
 
         if (foundUniqueChars == length)
         {
-            return i;
             break;
         }
     }
+    
+    return i;
 }
 
 // gcc aoc6.c -o aoc6.exe
