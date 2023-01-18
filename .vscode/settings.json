@@ -9,6 +9,7 @@
         "rope": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "iosfwd": "cpp"
     },
 }
