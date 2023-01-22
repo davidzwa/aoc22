@@ -1,3 +1,6 @@
 x86_64-12.2.0-release-win32-seh-ucrt-rt_v10-rev2
 *.exe
 rubyinstaller-*
+.idea/
+aoc9/obj/
+aoc9/bin/
