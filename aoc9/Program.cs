@@ -35,8 +35,10 @@ void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int>
 
 (bool, (int, int)) DetermineAbsoluteMove((int, int) posHeadNext, (int, int) posHeadCurrent, (int, int) posTailCurrent)
 {
-    var xDiff = int.Abs(posHeadNext.Item1 - posTailCurrent.Item1);
-    var yDiff = int.Abs(posHeadNext.Item2 - posTailCurrent.Item2);
+    var xN = posHeadNext.Item1 - posTailCurrent.Item1;
+    var xDiff = int.Abs(xN);
+    var yN = posHeadNext.Item2 - posTailCurrent.Item2;
+    var yDiff = int.Abs(yN);
     if (xDiff > 2 || yDiff > 2)
     {
         Console.WriteLine("HeadPos {0}", posHeadNext);
@@ -44,10 +46,21 @@ void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int>
         throw new InvalidOperationException($"Tail part lags behind more than 2 cells {xDiff} {yDiff}");
     }
 
-    if ((xDiff == 0 && yDiff > 1) || (yDiff == 0 && xDiff > 1) || (xDiff > 1 && yDiff == 1) ||
-        (xDiff == 1 && yDiff > 1))
+    // x1y0,x1y1,x0y1,x0y0 => NOOP
+    if ((xDiff == 0 && yDiff > 1) || (xDiff > 1 && yDiff == 0))
     {
+        // Simple straight move with delta of 2
         return (true, posHeadCurrent);
+    }
+    else if (xDiff > 1 && yDiff == 1)
+    {
+        var sign = xN / xDiff;
+        return (true, (posTailCurrent.Item1 + sign, posTailCurrent.Item2 + yN));
+    }
+    else if (xDiff == 1 && yDiff > 1)
+    {
+        var sign = yN / yDiff;
+        return (true, (posTailCurrent.Item1 + xN, posTailCurrent.Item2 + sign));
     }
     else
     {
@@ -61,13 +74,15 @@ Console.WriteLine(path);
 var re = new Regex("^(U|D|L|R) ([0-9]{1,2})$");
 var realFile = "../../../../questions/aoc9_input";
 var lines2 = File.ReadAllLines(realFile);
-
-// var testFile = "../../../../questions/aoc9_test_input";
+var testFile = "../../../../questions/aoc9_test_input";
 // var lines2 = File.ReadAllLines(testFile);
+
+// Algorithm containers
 var instructions = new List<Tuple<Dir, int>>();
 var coords = new Dictionary<string, int>();
 var moves = lines2.Length;
-var subMove = 0;
+
+// Grid rect limit tracker variables
 var minX = 0;
 var maxX = 0;
 var minY = 0;
@@ -102,12 +117,15 @@ var grid = new int[width, height];
 var startPos = (int.Abs(minX), int.Abs(minY));
 Console.WriteLine("Grid size W{0} H{1} with start point (0, 0) offset by {2}", width, height, startPos);
 
+// Track the start
 coords.Add($"{startPos.Item1},{startPos.Item2}", 1);
 grid[startPos.Item1, startPos.Item2] = 1;
-var posList = Enumerable.Range(0, 9).Select(_ => (startPos.Item1, startPos.Item2)).ToList();
-var headPos = posList[0];
-var tailPos = posList[1];
-Console.WriteLine("Start {0}", headPos);
+
+// Hold the positions of the snake
+
+const int pieces = 10;
+var posList = Enumerable.Range(0, pieces).Select(_ => (startPos.Item1, startPos.Item2)).ToList();
+Console.WriteLine("Start {0}", posList[0]);
 
 foreach (var (dir, cnt) in instructions)
 {
@@ -122,35 +140,50 @@ foreach (var (dir, cnt) in instructions)
             Dir.R => (1, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
-        var previousHeadPos = (headPos.Item1, headPos.Item2);
-        headPos = (headPos.Item1 + command.Item1, headPos.Item2 + command.Item2);
 
-        // Only on second move and beyond will the tail follow
-        if (subMove > 0)
+        // Save the new head position to trigger the snake to move piece by piece
+        var previousHeadPos = (posList.First().Item1, posList.First().Item2);
+        posList[0] = (posList.First().Item1 + command.Item1, posList.First().Item2 + command.Item2);
+        Console.WriteLine("Head Move [{0}] {1}", 0, posList[0]);
+
+        foreach (int i in Enumerable.Range(1, pieces - 1))
         {
             // if headpos is at diagonal difference (X and Y diff 1), dont move tail
-            (bool hasMoved, (int, int) newTailPos) = DetermineAbsoluteMove(headPos, previousHeadPos, tailPos);
+            (bool hasMoved, (int, int) newTailPos) = DetermineAbsoluteMove(posList[i - 1], previousHeadPos, posList[i]);
             if (hasMoved)
             {
-                tailPos = newTailPos;
+                previousHeadPos = (posList[i].Item1, posList[i].Item2);
                 
-                // Register the visit count in hash map form (for quick counting))
-                var key = $"{tailPos.Item1},{tailPos.Item2}";
-                if (!coords.ContainsKey(key))
-                    coords.Add(key, 1);
-                else
-                    coords[key] += +1;
+                // Console.WriteLine("RelMove from {0} to {1}", posList[i], newTailPos);
+                var relTailPos = posList[i] = newTailPos;
+                if (i == pieces - 1)
+                {
+                    // Register the visit count in hash map form (for quick counting))
+                    var key = $"{relTailPos.Item1},{relTailPos.Item2}";
+                    if (!coords.ContainsKey(key))
+                        coords.Add(key, 1);
+                    else
+                        coords[key] += +1;
 
-                // Mark the grid with the hashed value
-                grid[tailPos.Item1, tailPos.Item2] = coords[key];
+                    // Mark the grid with the hashed value
+                    grid[relTailPos.Item1, relTailPos.Item2] = coords[key];
+                }
+
+                Console.Write("Move [{0}] {1}", i, relTailPos);
             }
-        }
+            else
+            {
+                previousHeadPos = (posList[i].Item1, posList[i].Item2);
+                Console.Write("No [{0}] {1}", i, posList[i]);
+            }
 
-        subMove += 1;
+            // Save the tail as relative head for the next iteration
+            Console.WriteLine(" PrevHead {0}", previousHeadPos);
+        }
     }
 
     // Console.WriteLine("[{1}] HeadPos {0} {2}{3}", headPos, move, dir, cnt);
 }
 
 // PrintMatrix(grid, tail: tailPos, head:headPos, start: startPos);
-Console.WriteLine("HeadPos:{0}, moves:{1}, coords:{2}", headPos, moves, coords.Count);
+Console.WriteLine("HeadPos:{0}, moves:{1}, coords:{2}", posList.First(), moves, coords.Count);
