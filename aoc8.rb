@@ -109,46 +109,65 @@ lines.each_with_index do |line, row_index|
 end
 
 visible_tree_count = 0
-for col_index in (1..(cols-2))
+for col_index in (0..(cols-1))
     
-    max = m.column(col_index)[0]
+    max = m.column(col_index).first
     for elem, index in m.column(col_index).each_with_index
-        if elem == 1
-            if elem > max 
-                max = elem
-            end
-            next
-        end
-        
+        # If its already marked 1, no need to mark that element
+        # if mv[index,col_index] == 1
+        #     if elem > max 
+        #         max = elem
+        #     end
+        #     next
         if elem > max
             mv[index, col_index] = 1
             max = elem
+
+            # if mv[98-6, 2] == 1
+            #     raise "Wrong entry row 7 col 2 (==1) elem:#{elem} max:#{max} row:#{index} col:#{col_index}"
+            # end
         end
     end
 
-    max2 = m.column(col_index)[rows - 1]
-    for elem, index in m.column(col_index).to_a.reverse.each_with_index
-        if elem == 1
-            if elem > max 
-                max2 = elem
-            end
-            next
-        end
+    max2 = m.column(col_index).to_a.last()
+    for elem, i in m.column(col_index).to_a.reverse.each_with_index
+        r_index = rows - 1 - i
+        # mv_elem = mv[index,col_index]
+        # if mv_elem == 1
+        #     if elem > max 
+        #         max2 = elem
+        #     end
+        #     next
+        # end
 
         if elem > max2
-            mv[index, col_index] = 1
+            # if mv[6, 2] == 1
+            #     raise "(Pre-Reverse) Wrong entry row 7 col 2 (==1)  elem:#{elem} max:#{max2} row:#{index} col:#{col_index}"
+            # end
+            if r_index == 6 and col_index == 2 
+                raise "max2:#{max2} elem: #{elem}"
+            end
+            mv[r_index, col_index] = 1
             max2 = elem
+                        
+            if mv[6, 2] == 1
+                raise "(Reverse) Wrong entry row 7 col 2 (==1)  elem:#{elem} max:#{max2} row:#{r_index} col:#{col_index}"
+            end
         end
     end
 
-    if col_index == 2
-        print_matrix(mv.column(col_index), rows)
-    end
+    # if col_index == 2
+        # print_matrix(mv.column(col_index), rows)
+    # end
 end
 
+if mv[6, 2] == 1
+    raise "Wrong entry row 7 col 2 (==1)"
+end
 
 # print_matrix(m, cols)
-# print_matrix(mv, cols)
+print_matrix(mv, cols)
+
 # 689 is too low
 # 776 is too low
 # 778 is too low
