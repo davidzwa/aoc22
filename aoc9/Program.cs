@@ -33,6 +33,27 @@ void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int>
     return (dir, cnt);
 }
 
+(bool, (int, int)) DetermineAbsoluteMove((int, int) posHeadNext, (int, int) posHeadCurrent, (int, int) posTailCurrent)
+{
+    var xDiff = int.Abs(posHeadNext.Item1 - posTailCurrent.Item1);
+    var yDiff = int.Abs(posHeadNext.Item2 - posTailCurrent.Item2);
+    if (xDiff > 2 || yDiff > 2)
+    {
+        Console.WriteLine("HeadPos {0}", posHeadNext);
+        Console.WriteLine("TailPos {0}", posTailCurrent);
+        throw new InvalidOperationException($"Tail part lags behind more than 2 cells {xDiff} {yDiff}");
+    }
+
+    if ((xDiff == 0 && yDiff > 1) || (yDiff == 0 && xDiff > 1) || (xDiff > 1 && yDiff == 1) ||
+        (xDiff == 1 && yDiff > 1))
+    {
+        return (true, posHeadCurrent);
+    }
+    else
+    {
+        return (false, posTailCurrent);
+    }
+}
 
 var path = Directory.GetCurrentDirectory();
 Console.WriteLine(path);
@@ -52,6 +73,8 @@ var maxX = 0;
 var minY = 0;
 var maxY = 0;
 var refPos = (0, 0);
+
+// Parse instructions, cache them and determine grid size for allocating 
 foreach (var line in lines2)
 {
     var (dir, cnt) = ParseInstruction(re, line);
@@ -106,27 +129,19 @@ foreach (var (dir, cnt) in instructions)
         if (subMove > 0)
         {
             // if headpos is at diagonal difference (X and Y diff 1), dont move tail
-            var xDiff = int.Abs(headPos.Item1 - tailPos.Item1);
-            var yDiff = int.Abs(headPos.Item2 - tailPos.Item2);
-            if (xDiff > 2 || yDiff > 2)
+            (bool hasMoved, (int, int) newTailPos) = DetermineAbsoluteMove(headPos, previousHeadPos, tailPos);
+            if (hasMoved)
             {
-                Console.WriteLine("HeadPos {0} {2}{1}", headPos, dir, cnt);
-                Console.WriteLine("TailPos {0} {2}{1}", tailPos, dir, cnt);
-                throw new InvalidOperationException($"Tail lags behind more than 2 cells {xDiff} {yDiff}");
-            }
-
-            if ((xDiff == 0 && yDiff > 1) || (yDiff == 0 && xDiff > 1) || (xDiff > 1 && yDiff == 1) ||
-                (xDiff == 1 && yDiff > 1))
-            {
-                tailPos = previousHeadPos;
-                // Console.WriteLine("[{1}] New TailPos {0} {2}{3}", tailPos, move, dir, cnt);
-
+                tailPos = newTailPos;
+                
+                // Register the visit count in hash map form (for quick counting))
                 var key = $"{tailPos.Item1},{tailPos.Item2}";
                 if (!coords.ContainsKey(key))
                     coords.Add(key, 1);
                 else
                     coords[key] += +1;
 
+                // Mark the grid with the hashed value
                 grid[tailPos.Item1, tailPos.Item2] = coords[key];
             }
         }
