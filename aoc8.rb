@@ -16,7 +16,11 @@ def print_matrix(matrix, cols)
     print "\n"
 end
 
-pn = Pathname.new("./questions/aoc8_input")
+def calc_scenic_score(left, bottom, right, top)
+    return left * bottom * right * top
+end
+
+pn = Pathname.new("./questions/aoc8_input") #aoc8_2_test
 lines = File.readlines(pn)
 
 rows = lines.length
@@ -131,19 +135,10 @@ for col_index in (0..(cols-1))
 
     max2 = m.column(col_index).to_a.last()
     for elem, i in m.column(col_index).to_a.reverse.each_with_index
+        # Invert the reverted row index back to the real matrix
         r_index = rows - 1 - i
-        # mv_elem = mv[index,col_index]
-        # if mv_elem == 1
-        #     if elem > max 
-        #         max2 = elem
-        #     end
-        #     next
-        # end
 
         if elem > max2
-            # if mv[6, 2] == 1
-            #     raise "(Pre-Reverse) Wrong entry row 7 col 2 (==1)  elem:#{elem} max:#{max2} row:#{index} col:#{col_index}"
-            # end
             if r_index == 6 and col_index == 2 
                 raise "max2:#{max2} elem: #{elem}"
             end
@@ -155,10 +150,6 @@ for col_index in (0..(cols-1))
             end
         end
     end
-
-    # if col_index == 2
-        # print_matrix(mv.column(col_index), rows)
-    # end
 end
 
 if mv[6, 2] == 1
@@ -166,12 +157,72 @@ if mv[6, 2] == 1
 end
 
 # print_matrix(m, cols)
-print_matrix(mv, cols)
+# print_matrix(mv, cols)
 
 # 689 is too low
 # 776 is too low
 # 778 is too low
+# forgot a guess
 # 1320 is not correct
 # 1308 is not correct (v3 row fixes) 
-# 1943
+# 1943 is too high (I know now)
+# 1835 is correct
 puts mv.count(1)
+
+# Scenic score part 2
+scenic_score = 0
+for i in (0..(rows-1))
+    for j in (0..(cols-1))
+        # for each tree calculation viewing score for 4 directions
+        # left 
+        left = 0
+        right = 0
+        top = 0
+        bottom = 0
+        
+        element = m[i, j]
+        # left (j = column iterator index)
+        if j > 0
+            for col in (j-1).downto(0)
+                left += 1
+                if m[i, col] >= element
+                    break
+                end
+            end
+        end
+        # right
+        if j < cols - 1 
+            for col2 in (j+1).upto(cols-1)
+                right += 1
+                if m[i, col2] >= element
+                    break
+                end
+            end
+        end
+        # top (i = row iterator index)
+        if i > 0 
+            for row in (i-1).downto(0)
+                top += 1
+                if m[row, j] >= element
+                    break
+                end
+            end
+        end
+        # bottom
+        if i < rows -1 
+            for row2 in (i+1).upto(rows-1)
+                bottom += 1
+                if m[row2, j] >= element
+                    break
+                end
+            end
+        end
+
+        score = calc_scenic_score(left,right,bottom,top)
+        scenic_score = [scenic_score, score].max
+
+        print "[#{i}, #{j}] Score: #{score} Max: #{scenic_score} Val:#{element} L:#{left} R:#{right} T:#{top} B:#{bottom}\n"
+    end
+end
+
+puts scenic_score
