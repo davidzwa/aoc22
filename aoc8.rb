@@ -78,7 +78,6 @@ lines.each_with_index do |line, row_index|
             # print "Nilling", " Left ", left, " Right ", right, "\n"
             for j in (new_left+1..(new_right-1))
                 mv[row_index,j] = 0
-                m[row_index,j] = 0
             end
             # print row_index, " Vec "
             # print_matrix(mv.row(row_index), cols)
@@ -90,7 +89,6 @@ lines.each_with_index do |line, row_index|
             # print "Printing ", new_left+1,  " to ", left-1, "\n"
             for j in (new_left+1..(left-1))
                 mv[row_index,j] = 0
-                m[row_index,j] = 0
             end
             # print row_index, " Vec "
             # print_matrix(mv.row(row_index), cols)
@@ -98,10 +96,9 @@ lines.each_with_index do |line, row_index|
         end
         
         if new_right > right
-            print "Righting ", row_index, " Zeroing ", right+1,  " to ", new_right-1, "\n"
+            # print "Righting ", row_index, " Zeroing ", right+1,  " to ", new_right-1, "\n"
             for j in ((right+1)..(new_right-1))
                 mv[row_index,j] = 0
-                m[row_index,j] = 0
             end
             # print row_index, " Vec "
             # print_matrix(mv.row(row_index), cols)
@@ -114,28 +111,38 @@ end
 visible_tree_count = 0
 for col_index in (1..(cols-2))
     
-    max = mv.column(col_index)[0]
-    for elem, index in mv.column(col_index).each_with_index
+    max = m.column(col_index)[0]
+    for elem, index in m.column(col_index).each_with_index
         if elem == 1
+            if elem > max 
+                max = elem
+            end
             next
         end
         
         if elem > max
-            mv[index][col_index] = 1
+            mv[index, col_index] = 1
             max = elem
         end
     end
 
-    max2 = mv.column(col_index)[rows - 1]
-    for elem, index in mv.column(col_index).reverse_each.each_with_index
+    max2 = m.column(col_index)[rows - 1]
+    for elem, index in m.column(col_index).to_a.reverse.each_with_index
         if elem == 1
+            if elem > max 
+                max2 = elem
+            end
             next
         end
 
         if elem > max2
-            mv[index][col_index] = 1
+            mv[index, col_index] = 1
             max2 = elem
         end
+    end
+
+    if col_index == 2
+        print_matrix(mv.column(col_index), rows)
     end
 end
 
@@ -147,4 +154,5 @@ end
 # 778 is too low
 # 1320 is not correct
 # 1308 is not correct (v3 row fixes) 
+# 1943
 puts mv.count(1)
