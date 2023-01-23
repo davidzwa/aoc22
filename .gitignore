@@ -4,3 +4,5 @@ rubyinstaller-*
 .idea/
 aoc9/obj/
 aoc9/bin/
+scala3*/
+.metals/

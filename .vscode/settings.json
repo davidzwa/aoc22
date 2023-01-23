@@ -12,4 +12,7 @@
         "iostream": "cpp",
         "iosfwd": "cpp"
     },
+    "files.watcherExclude": {
+        "**/target": true
+    },
 }
