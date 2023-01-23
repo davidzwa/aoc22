@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using aoc9;
 
 void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int> tail, ValueTuple<int, int> head)
@@ -33,7 +34,7 @@ void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int>
     return (dir, cnt);
 }
 
-(bool, (int, int)) DetermineAbsoluteMove((int, int) posHeadNext, (int, int) posHeadCurrent, (int, int) posTailCurrent)
+(bool, (int, int)) DetermineAbsoluteMove((int, int) posHeadNext, (int, int) posTailCurrent)
 {
     var xN = posHeadNext.Item1 - posTailCurrent.Item1;
     var xDiff = int.Abs(xN);
@@ -50,7 +51,16 @@ void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int>
     if ((xDiff == 0 && yDiff > 1) || (xDiff > 1 && yDiff == 0))
     {
         // Simple straight move with delta of 2
-        return (true, posHeadCurrent);
+        if (yDiff > 1)
+        {
+            var sign = yN / yDiff;
+            return (true, (posTailCurrent.Item1, posTailCurrent.Item2 + sign));
+        }
+        else
+        {
+            var sign = xN / xDiff;
+            return (true, (posTailCurrent.Item1 + sign, posTailCurrent.Item2));
+        }
     }
     else if (xDiff > 1 && yDiff == 1)
     {
@@ -62,11 +72,64 @@ void PrintMatrix(int[,] matrix, ValueTuple<int, int> start, ValueTuple<int, int>
         var sign = yN / yDiff;
         return (true, (posTailCurrent.Item1 + xN, posTailCurrent.Item2 + sign));
     }
+    else if (xDiff == 2 && yDiff == 2)
+    {
+        var signY = yN / yDiff;
+        var signX = xN / xDiff;
+        return (true, (posTailCurrent.Item1 + signX, posTailCurrent.Item2 + signY));
+    }
     else
     {
         return (false, posTailCurrent);
     }
 }
+
+void AssertMove((int, int) head, (int, int) tail, bool willMoveCmp, (int, int) moveCmp)
+{
+    (bool willMove, (int, int) move) = DetermineAbsoluteMove(head, tail);
+    Console.WriteLine($"Compare {willMove} ?= {willMoveCmp}, {move} ?= {moveCmp}");
+    Debug.Assert(willMove == willMoveCmp, $"{willMove} != {willMoveCmp}");
+    Debug.Assert(move.CompareTo(moveCmp) == 0, $"{move} != {moveCmp}");
+    Console.WriteLine($"Compare {willMove} == {willMoveCmp}, {move} (result) == {moveCmp} (wanted)");
+}
+
+
+/*
+ * ...  ...
+ * .H.  .H.
+ * T..  T..
+ */
+AssertMove((1, 1), (0, 0), false, (0, 0));
+/*
+ * .H.  .H.
+ * ...  .T.
+ * T..  ...
+ */
+AssertMove((1, 2), (0, 0), true, (1, 1));
+/*
+ * ..H  ..H
+ * ...  .T.
+ * T..  ...
+ */
+AssertMove((2, 2), (0, 0), true, (1, 1));
+/*
+ * ...  ...
+ * ..T  ...
+ * H..  HT.
+ */
+AssertMove((0, 0), (2, 1), true, (1, 0));
+/*
+ * ...  ...
+ * H.T  HT.
+ * ...  ...
+ */
+AssertMove((0, 1), (2, 1), true, (1, 1));
+/*
+ * ...  ...
+ * HT.  HT.
+ * ...  ...
+ */
+AssertMove((0, 1), (1, 1), false, (1, 1));
 
 var path = Directory.GetCurrentDirectory();
 Console.WriteLine(path);
@@ -142,18 +205,18 @@ foreach (var (dir, cnt) in instructions)
         };
 
         // Save the new head position to trigger the snake to move piece by piece
-        var previousHeadPos = (posList.First().Item1, posList.First().Item2);
+        // var previousHeadPos = (posList.First().Item1, posList.First().Item2);
         posList[0] = (posList.First().Item1 + command.Item1, posList.First().Item2 + command.Item2);
         Console.WriteLine("Head Move [{0}] {1}", 0, posList[0]);
 
         foreach (int i in Enumerable.Range(1, pieces - 1))
         {
             // if headpos is at diagonal difference (X and Y diff 1), dont move tail
-            (bool hasMoved, (int, int) newTailPos) = DetermineAbsoluteMove(posList[i - 1], previousHeadPos, posList[i]);
+            (bool hasMoved, (int, int) newTailPos) = DetermineAbsoluteMove(posList[i - 1], posList[i]);
             if (hasMoved)
             {
-                previousHeadPos = (posList[i].Item1, posList[i].Item2);
-                
+                // previousHeadPos = (posList[i].Item1, posList[i].Item2);
+
                 // Console.WriteLine("RelMove from {0} to {1}", posList[i], newTailPos);
                 var relTailPos = posList[i] = newTailPos;
                 if (i == pieces - 1)
@@ -173,12 +236,12 @@ foreach (var (dir, cnt) in instructions)
             }
             else
             {
-                previousHeadPos = (posList[i].Item1, posList[i].Item2);
+                // previousHeadPos = (posList[i].Item1, posList[i].Item2);
                 Console.Write("No [{0}] {1}", i, posList[i]);
             }
 
             // Save the tail as relative head for the next iteration
-            Console.WriteLine(" PrevHead {0}", previousHeadPos);
+            // Console.WriteLine(" PrevHead {0}", previousHeadPos);
         }
     }
 
