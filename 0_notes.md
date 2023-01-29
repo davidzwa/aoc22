@@ -8,3 +8,7 @@ Backup languages:
 - fortran
 - clojure
 - TeX
+
+Dont forget to:
+- remove dart (Choco?)
+- remove ext from C:/php
