@@ -4,7 +4,7 @@ import scala.collection.mutable._
 
 class Monkey(
     val index: Int,
-    var items: List[Int] = List[Int](), 
+    var items: List[Long] = List[Long](), 
     var operator: Char = '?', 
     var operand: String = null, 
     var divBy: Int = 0, 
@@ -21,13 +21,13 @@ val testPrefix = "Test: divisible by "
 val ifTruePrefix = "If true: throw to monkey "
 val ifFalsePrefix = "If false: throw to monkey "
 
-def operate(operator: Char, lvalue: Int, rvalue_temp: String): Int = {
-    var rvalue = 0
+def operate(operator: Char, lvalue: Long, rvalue_temp: String): Long = {
+    var rvalue: Long = 0
     if (rvalue_temp == "old") {
         rvalue = lvalue
     }
     else {
-        rvalue = rvalue_temp.toInt
+        rvalue = rvalue_temp.toLong
     }
 
     if (operator == '*'){
@@ -48,7 +48,7 @@ def isDivBy(value: Int, by: Int): Boolean = {
 // Main with breakable loop
 @main def main() =
     var filename = "./questions/aoc11_input"
-    // filename = "./questions/aoc11_test_input"
+    filename = "./questions/aoc11_test_input"
     var index: Int = 0
     var monkeys: List[Monkey] = List()
     var lm : Monkey | Null = null
@@ -67,7 +67,7 @@ def isDivBy(value: Int, by: Int): Boolean = {
                 .replace(startingItemsPrefix, "")
                 .split(", ")
                 .toList
-                .map((strint) => strint.toInt);
+                .map((strint) => strint.toLong);
                 // println("Items " + items)
                 lm.items = lm.items.concat(items)
             } else if (line2.contains("Operation: ")) {
@@ -92,34 +92,34 @@ def isDivBy(value: Int, by: Int): Boolean = {
 
     println("Monkeys " + monkeys.length)
     breakable {
-        for (i <- 1 to 20) {
+        for (i <- 1 to 10000) {
             println("Round " + i )
             for (m <- monkeys) {
-                println("I" + m.index  + " Len" + m.items.length)
+                // println("I" + m.index  + " Len" + m.items.length)
                 // println("I" + m.index + " Len" + m.items.length + " \n  old = old " + m.operator + " " + m.operand 
                 // + " \n  D" + m.divBy + " T" + m.trueTo + " F" + m.falseTo)
 
                 m.items.zipWithIndex.foreach{
                     case (item, index) => {
                         var res = operate(m.operator, item, m.operand)
-                        var worry = Math.floor(res / 3).toInt
+                        var worry = Math.floor(res).toInt
                         if (isDivBy(worry, m.divBy)) {
-                            println("Item " + item + " DivBy " + worry + " by " + m.divBy + " = False")
+                            // println("Item " + item + " DivBy " + worry + " by " + m.divBy + " = False")
                             var trueM = monkeys(m.trueTo)
                             trueM.items = trueM.items :+ worry
-                            println("DivBy True " + trueM.index + " Items: " + trueM.items)
+                            // println("DivBy True " + trueM.index + " Items: " + trueM.items)
                         }
                         else {
-                            println("Item " + item + " DivBy " + worry + " by " + m.divBy + " = False")
+                            // println("Item " + item + " DivBy " + worry + " by " + m.divBy + " = False")
                             var falseM = monkeys(m.falseTo)
                             falseM.items = falseM.items :+ worry
-                            println("DivBy False " + falseM.index + " Items: " + falseM.items)
+                            // println("DivBy False " + falseM.index + " Items: " + falseM.items)
                         }
 
                         m.activity += 1
                     }
                 }
-                m.items = List[Int]()
+                m.items = List[Long]()
             }
         }
 
@@ -133,5 +133,7 @@ def isDivBy(value: Int, by: Int): Boolean = {
         monkeys = monkeys.filterNot(m => m.index == maxIndex._2)
         maxIndex = monkeys.map(m => m.activity).zipWithIndex.maxBy(_._1)
         var max2 = maxIndex._1
+        // 1515338077
+        // test -1794967296
         println(max1 * max2)
     }
