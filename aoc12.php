@@ -159,7 +159,7 @@ insertHeap($openSet, $start);
 printHeap($openSet);
 
 $iter = 0;
-while ($openSet->count() != 0 && $iter < 3) {
+while ($openSet->count() != 0 && $iter < 10) {
   echo "<br/>---- Iteration {$iter} (openSet {$openSet->count()}) ----<br/>";
 
   // Pop node with least f from the openSet list, call it bestNode, 
@@ -240,6 +240,8 @@ while ($openSet->count() != 0 && $iter < 3) {
       if ($child == $elem && $child->g > $elem->g) {
         echo "XX Skipping child <br/>";
         continue 2;
+      } else {
+        echo "Not skipping";
       }
     }
 
