@@ -14,7 +14,7 @@
             "-t",
             "."
         ],
-        "port": 9003,
+        "port": 8000,
         "serverReadyAction": {
             "action": "openExternally",
             "uriFormat": "%s/aoc12.php",
